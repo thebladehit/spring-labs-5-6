@@ -6,15 +6,15 @@ import java.util.*;
 
 @Service
 public class TokenPublisher {
-    List<String> tokens = new ArrayList<>();
+    HashMap<String, String> tokens = new HashMap<>();
 
     public String generateToken(String email) {
         String token = UUID.randomUUID().toString();
-        tokens.add(token);
+        tokens.put(token, email);
         return token;
     }
 
-    public boolean validateToken(String token) {
-        return tokens.contains(token);
+    public String validateToken(String token) {
+        return tokens.get(token);
     }
 }

@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import spring.labs.dating.user.interfaces.UserRepository;
+import spring.labs.dating.user.models.User;
 
 import java.io.IOException;
 
@@ -18,6 +20,7 @@ import java.io.IOException;
 public class AuthFilter implements Filter {
 
     private final TokenPublisher tokenPublisher;
+    private final UserRepository userRepository;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -30,7 +33,7 @@ public class AuthFilter implements Filter {
 
         String path = httpRequest.getRequestURI();
 
-        if (path.startsWith("/api/v1/auth")) {
+        if (path.startsWith("/api/v1/auth") || !path.startsWith("/api/v1")) {
             chain.doFilter(request, response);
             return;
         }
@@ -39,10 +42,13 @@ public class AuthFilter implements Filter {
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7);
-            if (!tokenPublisher.validateToken(token)) {
+            String userEmail = tokenPublisher.validateToken(token);
+            if (userEmail == null) {
                 httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
                 return;
             }
+            User user = userRepository.findByEmail(userEmail);
+            httpRequest.setAttribute("user", user);
             chain.doFilter(request, response);
             return;
         }
