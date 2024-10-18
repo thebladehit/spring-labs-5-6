@@ -1,5 +1,9 @@
 package spring.labs.dating.user.projections;
 
+import spring.labs.dating.user.models.Keyword;
+
+import java.util.List;
+
 public interface UserProjection {
     Long getId();
     String getFirstName();
@@ -7,4 +11,5 @@ public interface UserProjection {
     String getEmail();
     int getAge();
     String getStatus();
+    List<Keyword> getKeywords();
 }
